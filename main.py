@@ -10,12 +10,10 @@ from ev3dev2.console import *
 
 
 def segue_linha():
-    preto = 20
+    preto = 30
     verde = 6
     valor_esq = sensorEsq.value()
     valor_dir = sensorDir.value()
-    sensor_esq_valores = []
-    sensor_dir_valores = []
     vmenor = 30
     vmaior = -50
 
@@ -23,11 +21,9 @@ def segue_linha():
     sensor_esq_valores.append(valor_esq)
 
     if (valor_esq < preto) and (valor_dir < preto): #ambos veem valor menor que preto
-        if (sum(sensor_esq_valores[-200:])/200) > preto and (sum(sensor_dir_valores[-200:])/200) > preto:
-            motores.on(SpeedPercent(-10),SpeedPercent(-10))
-        elif (sum(sensor_esq_valores[-200:])/200) <= preto: #se o esquerdo andou vendo muito preto -> vira pra direita (virada bruta)
+        if (sum(sensor_esq_valores[-90:])/90) <= preto: #se o esquerdo andou vendo muito preto -> vira pra direita (virada bruta)
             motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
-        elif (sum(sensor_dir_valores[-200:])/200) <= preto: #se o direito andou vendo muito preto -> vira pra esquerda (virada bruta)
+        elif (sum(sensor_dir_valores[-90:])/90) <= preto: #se o direito andou vendo muito preto -> vira pra esquerda (virada bruta)
             motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
         else:
             motores.on(SpeedPercent(-10),SpeedPercent(-10))
@@ -46,26 +42,6 @@ def segue_linha():
         elif    (sum(sensor_dir_valores[-20:])/20) <= preto: #se o direito andou vendo muito preto -> vira pra esquerda (virada bruta)
             motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
         else: #ambos andam vendo branco'''
-        
-
-
-'''
-def segue_linha_verde():
-    preto = 30
-    verde = 6
-    valor_esq = sensorEsq.value()
-    valor_dir = sensorDir.value()
-    sensor_esq_valores = []
-    sensor_dir_valores = []
-    vmenor = 30
-    vmaior = -50
-
-    sensor_dir_valores.append(valor_dir)
-    sensor_esq_valores.append(valor_esq)
-
-    if (sum(sensor_esq_valores[-20:])/20) and (sum(sensor_dir_valores[-20:])/20) > preto:
-        if '''
-
 
 
 
@@ -101,7 +77,7 @@ def calibra_sensores():
 
 def inicio():
     while True:
-       segue_linha()
+        segue_linha()
         
 
 motores = MoveTank(OUTPUT_A,OUTPUT_B)
@@ -110,6 +86,7 @@ garra = Motor(OUTPUT_C)
 sensorEsq = ColorSensor(INPUT_3)
 sensorDir = ColorSensor(INPUT_1)
 ultrassom = UltrasonicSensor(INPUT_2)
-
+sensor_esq_valores = []
+sensor_dir_valores = []
 
 inicio()
