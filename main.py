@@ -12,9 +12,12 @@ import sys
 def vira_verde(valor_esq,valor_dir,verde):
     motores.on_for_seconds(SpeedPercent(-20), SpeedPercent(-20), 1.2)
     if (valor_esq < verde): #esq ve verde
-        motores.on_for_seconds(SpeedPercent(30),SpeedPercent(-50),1) #dobra pra esquerda
+        motores.on_for_seconds(SpeedPercent(20),SpeedPercent(-60),1) #direita
+        #motores.on_for_seconds(SpeedPercent(30),SpeedPercent(-50),1) #dobra pra esquerda
     elif (valor_dir < verde): #dir ve verde
-        motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1) #dobra pra direita
+        motores.on_for_seconds(SpeedPercent(-60),SpeedPercent(20),1) #direita
+
+        #motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1) #dobra pra direita
 
 def ambient_light_intensity(self):
         """
@@ -26,6 +29,7 @@ def ambient_light_intensity(self):
 
 def segue_linha(preto):
     verde = 18
+    branco = 200 #dentro da sala
     valor_frontal = sensorFrontal.value()
 
     if valor_frontal <= 0: #no claro, o valor é 250
@@ -33,27 +37,36 @@ def segue_linha(preto):
         '''valor_frontal = sensorFrontal.value()'''
         
     valor_esq = sensorEsq.value()
-    valor_dir = sensorDir.value()
-    vmenor = 30
-    vmaior = -50
+    valor_dir = sensorDir.value() 
+    vmenor = 100 
+    vmaior = -100
+
+    #bom valor de agressividade = 60 e -60 // 70 e -70
+    #tem como ele 
 
     sensorDir_valores.append(valor_dir)
     sensorEsq_valores.append(valor_esq)
 
-    print(valor_esq, file=sys.stderr)
-    #print(sensorEsq_valores, file=sys.stderr)
+    #print(valor_esq, file=sys.stderr)
+    print(sensorDir_valores, file=sys.stderr)
 
     if (valor_esq < verde) or (valor_dir < verde - 6): #sensor esquerdo ou direito vê o verde
+        Sound().beep()
         vira_verde(valor_esq,valor_dir,verde)
 
-    elif (valor_esq < (preto - 5)) and (valor_dir < (preto + 5)): #ambos veem valor menor que preto
-        if (sum(sensorEsq_valores[-90:])/90) <= (preto - 5): #se o esquerdo andou vendo muito preto -> vira pra direita (virada bruta)
-            motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
-            time.sleep(0.4)
-            Sound().beep()
 
-        elif (sum(sensorDir_valores[-90:])/90) <= (preto + 5): #se o direito andou vendo muito preto -> vira pra esquerda (virada bruta)
+    elif (valor_esq < (preto - 5)) and (valor_dir < (preto + 5)): #ambos veem valor menor que preto
+        ultimos_valoresEsq = sensorEsq_valores[-100:]
+        ultimos_valoresDir = sensorDir_valores[-100:]
+        ultimos_valoresEsq.sort()
+        ultimos_valoresDir.sort()
+
+        if ultimos_valoresEsq[54] < branco: #se o esquerdo andou vendo muito preto -> vira pra esquerda
             motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
+            time.sleep(0.4)
+
+        elif ultimos_valoresDir[54] : #se o direito andou vendo muito preto -> vira pra direita (virada bruta)
+            motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
             time.sleep(0.4)
 
         else: # dois pretos
@@ -62,13 +75,16 @@ def segue_linha(preto):
 
     elif (valor_esq < preto) and (valor_dir > preto): #só esquerdo ve valor menor que preto -> dobra pra esquerda
         motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior)) 
-        Sound().beep()
+        
 
     elif (valor_esq > preto) and (valor_dir < preto): #só direito ve valor menor que preto -> dobra pra direita
         motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor)) 
+        
 
     else: #ambos veem valores maiores que preto (dois branco)
         motores.on(SpeedPercent(-20),SpeedPercent(-20))
+    
+#    motores.on_for_seconds(SpeedPercent(-50), SpeedPercent(-50),0.2)
 
 
 def obstaculos(preto):    
@@ -158,10 +174,24 @@ def leitor_cor():
     print("SensorEsquerdo = ", sensorEsq.value()) #valores esq: branco (59) // preto (10) // verde (4 - 9)
     print("SensorDireito = ", sensorDir.value()) # valores dir: branco (70) // preto (7) // verde (4) // verde é menor que 6
 
+def valores_sCor(sensorEsq,sensorDir):
+    i = 0
+    
+    while i < 15:
+        motores.on(SpeedPercent(-50),SpeedPercent(-50))
+        sensorDir_valores.append(sensorDir.value())
+        sensorEsq_valores.append(sensorEsq.value())
+        i += 1
+
+    print(sensorDir_valores, file=sys.stderr)
+    print(sensorEsq_valores, file=sys.stderr)
+
 def inicio():
+    '''valores_sCor(sensorEsq,sensorDir)'''
     '''calibra_sensores()'''
     while True:
-       segue_linha(preto)
+        segue_linha(preto)
+        
 
 
         
@@ -178,6 +208,7 @@ sensorFrontal = LightSensor(INPUT_2)
 sensorEsq_valores = []
 sensorDir_valores = []
 sensorFrontal_valores = []
+
 preto = 45
 
 inicio()
