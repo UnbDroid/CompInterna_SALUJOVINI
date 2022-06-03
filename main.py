@@ -11,11 +11,40 @@ import sys
 
 def vira_verde(valor_esq,valor_dir,verde):
     motores.on_for_seconds(SpeedPercent(-20), SpeedPercent(-20), 1.2)
+    print("Verde2", file=sys.stderr)
+
+    '''valor_esq = sensorEsq.value()
+    valor_dir = sensorDir.value() 
+    verde_esq = 0
+    verde_dir = 0
+
+    if (valor_esq < verde):
+        verde_esq = 1
+        verde_dir = 0
+    elif (valor_dir < verde):
+        verde_esq = 0  
+        verde_dir = 1
+
+    while( (valor_esq != preto-5) and (valor_dir != preto-5)):         #enquanto os dois sensores não verem preto
+        motores.on_for_seconds(SpeedPercent(-20), SpeedPercent(-20), 0.2)       #anda um pouco pra passsar do verde
+        valor_esq = sensorEsq.value()
+        valor_dir = sensorDir.value() 
+
+    #vira conforme a cor
+    if(verde_esq == 1):             #tem que virar pra esquerda
+        motores.on_for_seconds(SpeedPercent(-10),SpeedPercent(-60),1) #esquerda
+
+    if(verde_dir == 1):             #tem que virar pra direita
+        motores.on_for_seconds(SpeedPercent(-60),SpeedPercent(-10),1) #direita'''
+    
+    valor_esq = sensorEsq.value()
+    valor_dir = sensorDir.value()
+
     if (valor_esq < verde): #esq ve verde
-        motores.on_for_seconds(SpeedPercent(20),SpeedPercent(-60),1) #direita
+        motores.on_for_seconds(SpeedPercent(-10),SpeedPercent(-60),1) #esquerda
         #motores.on_for_seconds(SpeedPercent(30),SpeedPercent(-50),1) #dobra pra esquerda
     elif (valor_dir < verde): #dir ve verde
-        motores.on_for_seconds(SpeedPercent(-60),SpeedPercent(20),1) #direita
+        motores.on_for_seconds(SpeedPercent(-60),SpeedPercent(-10),1) #direita
 
         #motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1) #dobra pra direita
 
@@ -32,7 +61,7 @@ def segue_linha(preto):
     branco = 200 #dentro da sala
     valor_frontal = sensorFrontal.value()
 
-    if valor_frontal <= 0: #no claro, o valor é 250
+    if valor_frontal <= 250: #no claro, o valor é 250
         obstaculos(preto)
         '''valor_frontal = sensorFrontal.value()'''
         
@@ -42,7 +71,6 @@ def segue_linha(preto):
     vmaior = -100
 
     #bom valor de agressividade = 60 e -60 // 70 e -70
-    #tem como ele 
 
     sensorDir_valores.append(valor_dir)
     sensorEsq_valores.append(valor_esq)
@@ -111,7 +139,7 @@ def obstaculos(preto):
     motores.on_for_seconds(SpeedPercent(-20),SpeedPercent(-20),0.5) #reto pra se ajustar
     motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1.2) #dobra pra direita'''
     
-    motores.on_for_seconds(SpeedPercent(-30),SpeedPercent(-30),1) #reto
+    motores.on_for_seconds(SpeedPercent(-30),SpeedPercent(-30),1.2) #reto
     valor_ultrassom = ultrassom.value()
     print(valor_ultrassom)
 
@@ -120,7 +148,7 @@ def obstaculos(preto):
             motores.on(SpeedPercent(-30),SpeedPercent(-30))
             valor_ultrassom = ultrassom.value()
     
-    motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1) #dobra pra direita
+    motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1.2) #dobra pra direita
     
     valor_ultrassom = ultrassom.value()
     motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-50), 2)
@@ -128,7 +156,8 @@ def obstaculos(preto):
     while valor_ultrassom <= perto:
         motores.on(SpeedPercent(-50),SpeedPercent(-50))
         valor_ultrassom = ultrassom.value()
-
+    
+    motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-50), 0.3)
     motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1.2) #dobra pra direita
 
     while valor_esq > preto and valor_dir > preto:
@@ -177,7 +206,7 @@ def leitor_cor():
 def valores_sCor(sensorEsq,sensorDir):
     i = 0
     
-    while i < 15:
+    while i < 5:
         motores.on(SpeedPercent(-50),SpeedPercent(-50))
         sensorDir_valores.append(sensorDir.value())
         sensorEsq_valores.append(sensorEsq.value())
@@ -188,7 +217,8 @@ def valores_sCor(sensorEsq,sensorDir):
 
 def inicio():
     '''valores_sCor(sensorEsq,sensorDir)'''
-    '''calibra_sensores()'''
+    calibra_sensores()
+    '''obstaculos(preto)'''
     while True:
         segue_linha(preto)
         
@@ -205,6 +235,7 @@ sensorEsq = ColorSensor(INPUT_3)
 sensorDir = ColorSensor(INPUT_1)
 ultrassom = UltrasonicSensor(INPUT_4)
 sensorFrontal = LightSensor(INPUT_2)
+#sensorFrontal = Sensor(INPUT_2)
 sensorEsq_valores = []
 sensorDir_valores = []
 sensorFrontal_valores = []
