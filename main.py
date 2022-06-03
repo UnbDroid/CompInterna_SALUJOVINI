@@ -57,11 +57,11 @@ def ambient_light_intensity(self):
 
 
 def segue_linha(preto):
-    verde = 18
+    verde = 20
     branco = 200 #dentro da sala
     valor_frontal = sensorFrontal.value()
 
-    if valor_frontal <= 250: #no claro, o valor é 250
+    if valor_frontal <= 0: #no claro, o valor é 250
         obstaculos(preto)
         '''valor_frontal = sensorFrontal.value()'''
         
@@ -69,6 +69,9 @@ def segue_linha(preto):
     valor_dir = sensorDir.value() 
     vmenor = 100 
     vmaior = -100
+
+    verde_esq = False
+    verde_dir = False
 
     #bom valor de agressividade = 60 e -60 // 70 e -70
 
@@ -78,10 +81,15 @@ def segue_linha(preto):
     #print(valor_esq, file=sys.stderr)
     print(sensorDir_valores, file=sys.stderr)
 
-    if (valor_esq < verde) or (valor_dir < verde - 6): #sensor esquerdo ou direito vê o verde
+    if (valor_esq < verde):
         Sound().beep()
-        vira_verde(valor_esq,valor_dir,verde)
-
+        motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
+        verde_esq = True
+    
+    elif (valor_dir < verde):
+        Sound().beep()
+        motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
+        verde_dir = True
 
     elif (valor_esq < (preto - 5)) and (valor_dir < (preto + 5)): #ambos veem valor menor que preto
         ultimos_valoresEsq = sensorEsq_valores[-100:]
@@ -97,9 +105,18 @@ def segue_linha(preto):
             motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
             time.sleep(0.4)
 
-        else: # dois pretos
-            motores.on_for_seconds(SpeedPercent(0), SpeedPercent(0),1)
-            motores.on_for_seconds(SpeedPercent(-20),SpeedPercent(-20),1)
+        else:
+            if verde_esq == True:
+                motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
+                verde_esq = False
+
+            elif verde_dir == True:
+                motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
+                verde_dir = False
+
+            else: # dois pretos
+                motores.on_for_seconds(SpeedPercent(0), SpeedPercent(0),1)
+                motores.on_for_seconds(SpeedPercent(-20),SpeedPercent(-20),1)
 
     elif (valor_esq < preto) and (valor_dir > preto): #só esquerdo ve valor menor que preto -> dobra pra esquerda
         motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior)) 
@@ -139,7 +156,7 @@ def obstaculos(preto):
     motores.on_for_seconds(SpeedPercent(-20),SpeedPercent(-20),0.5) #reto pra se ajustar
     motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1.2) #dobra pra direita'''
     
-    motores.on_for_seconds(SpeedPercent(-30),SpeedPercent(-30),1.2) #reto
+    motores.on_for_seconds(SpeedPercent(-30),SpeedPercent(-30),1.3) #reto
     valor_ultrassom = ultrassom.value()
     print(valor_ultrassom)
 
