@@ -61,7 +61,7 @@ def segue_linha(preto):
     branco = 200 #dentro da sala
     valor_frontal = sensorFrontal.value()
 
-    if valor_frontal > 150: #<= 100 no modo ambiente               #no claro, o valor é 250
+    if valor_frontal <= 150: #no modo ambiente no claro, o valor e 250
         obstaculos(preto)
         '''valor_frontal = sensorFrontal.value()'''
         
@@ -200,7 +200,7 @@ def calibrate_white(self):
 def calibra_sensores():
     print('Comeco')
     time.sleep(10)
-    #ambient_light_intensity(sensorFrontal)
+    ambient_light_intensity(sensorFrontal)
     calibrate_white(sensorEsq)
     calibrate_white(sensorDir)
     
@@ -247,7 +247,7 @@ def inicio():
     '''valores_sCor(sensorEsq,sensorDir)'''
     #calibra_sensores()
     while True:   
-        valor_frontal = sensorFrontal.value()     
+        #valor_frontal = sensorFrontal.value()     
         segue_linha(preto)
         
 motores = MoveTank(OUTPUT_A,OUTPUT_B)
