@@ -10,41 +10,22 @@ import sys
 
 
 def vira_verde(valor_esq,valor_dir,verde):
-    motores.on_for_seconds(SpeedPercent(-20), SpeedPercent(-20), 1.2)
-    print("Verde2", file=sys.stderr)
-
-    '''valor_esq = sensorEsq.value()
-    valor_dir = sensorDir.value() 
-    verde_esq = 0
-    verde_dir = 0
-
-    if (valor_esq < verde):
-        verde_esq = 1
-        verde_dir = 0
-    elif (valor_dir < verde):
-        verde_esq = 0  
-        verde_dir = 1
-
-    while( (valor_esq != preto-5) and (valor_dir != preto-5)):         #enquanto os dois sensores não verem preto
-        motores.on_for_seconds(SpeedPercent(-20), SpeedPercent(-20), 0.2)       #anda um pouco pra passsar do verde
-        valor_esq = sensorEsq.value()
-        valor_dir = sensorDir.value() 
-
-    #vira conforme a cor
-    if(verde_esq == 1):             #tem que virar pra esquerda
-        motores.on_for_seconds(SpeedPercent(-10),SpeedPercent(-60),1) #esquerda
-
-    if(verde_dir == 1):             #tem que virar pra direita
-        motores.on_for_seconds(SpeedPercent(-60),SpeedPercent(-10),1) #direita'''
+    Sound().beep()
+    #motores.on_for_seconds(SpeedPercent(-20), SpeedPercent(-20), 1.2)
     
-    valor_esq = sensorEsq.value()
-    valor_dir = sensorDir.value()
+    
+    '''valor_esq = sensorEsq.value()
+    valor_dir = sensorDir.value()'''
 
     if (valor_esq < verde): #esq ve verde
-        motores.on_for_seconds(SpeedPercent(-10),SpeedPercent(-60),1) #esquerda
-        #motores.on_for_seconds(SpeedPercent(30),SpeedPercent(-50),1) #dobra pra esquerda
+        print("Verde esquerdo", file=sys.stderr)
+        motores.on_for_seconds(SpeedPercent(-10),SpeedPercent(-50),1) #vira esquerda
+        valor_esq = sensorEsq.value()
+    
     elif (valor_dir < verde): #dir ve verde
-        motores.on_for_seconds(SpeedPercent(-60),SpeedPercent(-10),1) #direita
+        print("Verde esquerdo", file=sys.stderr)
+        motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-10),1) #vira direita
+        valor_dir = sensorDir.value()
 
         #motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1) #dobra pra direita
 
@@ -57,16 +38,18 @@ def ambient_light_intensity(self):
 
 
 def segue_linha(preto):
-    verde = 20
-    branco = 200 #dentro da sala
+    verde = 12
+    branco = 160 #dentro da sala
     valor_frontal = sensorFrontal.value()
-
-    if valor_frontal <= 0: #no claro, o valor é 250
+    
+    if valor_frontal <= 200: #<= 100 no modo ambiente               #no claro, o valor é 250
         obstaculos(preto)
         '''valor_frontal = sensorFrontal.value()'''
         
     valor_esq = sensorEsq.value()
     valor_dir = sensorDir.value() 
+    
+
     vmenor = 100 
     vmaior = -100
 
@@ -78,45 +61,31 @@ def segue_linha(preto):
     sensorDir_valores.append(valor_dir)
     sensorEsq_valores.append(valor_esq)
 
-    #print(valor_esq, file=sys.stderr)
+    #print(sensorEsq_valores[-100:], file=sys.stderr)
     print(sensorDir_valores, file=sys.stderr)
-
-    if (valor_esq < verde):
-        Sound().beep()
-        motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
-        verde_esq = True
     
-    elif (valor_dir < verde):
-        Sound().beep()
-        motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
-        verde_dir = True
+
+    if (valor_dir < verde) or (valor_esq < (verde+4)): #um ou outro ve verde
+        vira_verde(valor_esq,valor_dir,verde)
 
     elif (valor_esq < (preto - 5)) and (valor_dir < (preto + 5)): #ambos veem valor menor que preto
         ultimos_valoresEsq = sensorEsq_valores[-100:]
         ultimos_valoresDir = sensorDir_valores[-100:]
         ultimos_valoresEsq.sort()
+        #print(ultimos_valoresEsq, file=sys.stderr)
         ultimos_valoresDir.sort()
-
-        if ultimos_valoresEsq[54] < branco: #se o esquerdo andou vendo muito preto -> vira pra esquerda
+            
+        if ultimos_valoresEsq[30] < branco: #se o esquerdo andou vendo muito preto -> vira pra esquerda
             motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
             time.sleep(0.4)
-
-        elif ultimos_valoresDir[54] : #se o direito andou vendo muito preto -> vira pra direita (virada bruta)
+            
+        elif ultimos_valoresDir[30] < branco: #se o direito andou vendo muito preto -> vira pra direita (virada bruta)
             motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
             time.sleep(0.4)
 
-        else:
-            if verde_esq == True:
-                motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
-                verde_esq = False
-
-            elif verde_dir == True:
-                motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
-                verde_dir = False
-
-            else: # dois pretos
-                motores.on_for_seconds(SpeedPercent(0), SpeedPercent(0),1)
-                motores.on_for_seconds(SpeedPercent(-20),SpeedPercent(-20),1)
+        else: # dois pretos
+            motores.on_for_seconds(SpeedPercent(0), SpeedPercent(0),1)
+            motores.on_for_seconds(SpeedPercent(-20),SpeedPercent(-20),1)
 
     elif (valor_esq < preto) and (valor_dir > preto): #só esquerdo ve valor menor que preto -> dobra pra esquerda
         motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior)) 
@@ -126,66 +95,67 @@ def segue_linha(preto):
         motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor)) 
         
 
-    else: #ambos veem valores maiores que preto (dois branco)
+    else: #ambos veem valores maiores que preto (dois brancos)
         motores.on(SpeedPercent(-20),SpeedPercent(-20))
-    
-#    motores.on_for_seconds(SpeedPercent(-50), SpeedPercent(-50),0.2)
-
 
 def obstaculos(preto):    
     valor_esq = sensorEsq.value()
     valor_dir = sensorDir.value()
     perto = 150
-    
 
     motores.on_for_seconds(SpeedPercent(20),SpeedPercent(20), 1) # ré
-    motores.on_for_seconds(SpeedPercent(30),SpeedPercent(-50),1.2) #dobra pra esquerda
-    
-    #motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-50), 1.2) #reto // pode comentar elssa linha e descomentar a linha abaixo, ai vai ter um algoritmo para passar +- um objeto 20x20 cm
+    motores.on_for_seconds(SpeedPercent(30),SpeedPercent(-50),1.22) #dobra pra esquerda
 
-    '''motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-50), 1.6) #vai reto
-    motores.on_for_seconds(SpeedPercent(30),SpeedPercent(-50),1.2 ) #dobra pra esquerda
-    motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-50), 3.1) #reto
-    motores.on_for_seconds(SpeedPercent(30),SpeedPercent(-50),1.2) #dobra pra esquerda
+    valor_ultrassom = ultrassom.value()
+    
+    if valor_ultrassom < perto:
+        while valor_ultrassom < perto:
+            motores.on(SpeedPercent(-50),SpeedPercent(-50))
+            valor_ultrassom = ultrassom.value()
+            Sound().beep()
+    else:
+        while valor_ultrassom >= perto:
+            motores.on(SpeedPercent(-50),SpeedPercent(-50))
+            valor_ultrassom = ultrassom.value()
+            #print(valor_ultrassom, file=sys.stderr)
+
+        while valor_ultrassom < perto:
+            motores.on(SpeedPercent(-50),SpeedPercent(-50))
+            valor_ultrassom = ultrassom.value()
+            #print(valor_ultrassom, file=sys.stderr)
+
+    motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(10),1.6 ) #dobra pra direita
+
+    valor_ultrassom = ultrassom.value()
+
+    if valor_ultrassom < 100:
+        while valor_ultrassom < 100:
+            motores.on(SpeedPercent(-50),SpeedPercent(-50))
+            valor_ultrassom = ultrassom.value()
+            Sound().beep()
+    else:
+        while valor_ultrassom >= 100:
+            motores.on(SpeedPercent(-50),SpeedPercent(-50))
+            valor_ultrassom = ultrassom.value()
+            #print(valor_ultrassom, file=sys.stderr)
+        while valor_ultrassom < 100:
+            motores.on(SpeedPercent(-50),SpeedPercent(-50))
+            valor_ultrassom = ultrassom.value()
+            #print(valor_ultrassom, file=sys.stderr)
+    motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1.2) #dobra pra direita
     
     while valor_esq > preto and valor_dir > preto:
         motores.on(SpeedPercent(-20),SpeedPercent(-20)) #vai reto
         valor_esq = sensorEsq.value()
         valor_dir = sensorDir.value()
 
-    motores.on_for_seconds(SpeedPercent(-20),SpeedPercent(-20),0.5) #reto pra se ajustar
-    motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1.2) #dobra pra direita'''
-    
-    motores.on_for_seconds(SpeedPercent(-30),SpeedPercent(-30),1.3) #reto
-    valor_ultrassom = ultrassom.value()
-    print(valor_ultrassom)
-
-    if valor_ultrassom <= perto: 
-        while valor_ultrassom <= perto:
-            motores.on(SpeedPercent(-30),SpeedPercent(-30))
-            valor_ultrassom = ultrassom.value()
-    
-    motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1.2) #dobra pra direita
+    motores.on_for_seconds(SpeedPercent(30),SpeedPercent(-50),1.2) #dobra pra esquerda'''
     
     valor_ultrassom = ultrassom.value()
-    motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-50), 2)
-    
-    while valor_ultrassom <= perto:
-        motores.on(SpeedPercent(-50),SpeedPercent(-50))
-        valor_ultrassom = ultrassom.value()
-    
-    motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-50), 0.3)
-    motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1.2) #dobra pra direita
-
-    while valor_esq > preto and valor_dir > preto:
-        motores.on(SpeedPercent(-20),SpeedPercent(-20))
-        valor_esq = sensorEsq.value()
-        valor_dir = sensorDir.value()
-    
-    motores.on_for_seconds(SpeedPercent(-20), SpeedPercent(-20), 1.2)
-    motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-50),1.2) #dobra pra esquerda
+    #print(valor_ultrassom)
 
     valor_frontal = sensorFrontal.value()
+    segue_linha(preto)
     
 
 def calibrate_white(self):
@@ -195,7 +165,7 @@ def calibrate_white(self):
 def calibra_sensores():
     print('Comeco')
     time.sleep(10)
-    ambient_light_intensity(sensorFrontal)
+    #ambient_light_intensity(sensorFrontal)
     calibrate_white(sensorEsq)
     calibrate_white(sensorDir)
     
@@ -203,13 +173,19 @@ def calibra_sensores():
 def abaixa_garra():
     garra.on_for_seconds(SpeedPercent(-15), 0.4)
     garra.on_for_seconds(SpeedPercent(-9), 0.7)
-    garra.on_for_seconds(SpeedPercent(-10), 0.8)#0.8
+    garra.on_for_seconds(SpeedPercent(-10), 1) #0.8 // qunato tempo demora para abrir a garra
     time.sleep(2)
 
 def levanta_garra():
-    garra.on_for_seconds(SpeedPercent(15),1.4)
+    garra.on_for_seconds(SpeedPercent(15),1.2) #1.4
     #garra.on_for_seconds(SpeedPercent(9), 0.7)
     time.sleep(2)
+
+def funcao_estoque():
+    estoque.on_for_seconds(SpeedPercent(-10), 0.55) #sobe
+    time.sleep(5)
+    estoque.on_for_seconds(SpeedPercent(20), 0.35) #desce
+    time.sleep(10)
 
 def funcao_garra():
     abaixa_garra()
@@ -234,19 +210,19 @@ def valores_sCor(sensorEsq,sensorDir):
 
 def inicio():
     '''valores_sCor(sensorEsq,sensorDir)'''
-    calibra_sensores()
-    '''obstaculos(preto)'''
-    while True:
+    #calibra_sensores()
+    while True:   
+        valor_frontal = sensorFrontal.value()     
+        sensorFrontal_valores.append(valor_frontal)
+
+        #print(sensorFrontal_valores, file=sys.stderr)
+
         segue_linha(preto)
         
-
-
         
-
-
-
 motores = MoveTank(OUTPUT_A,OUTPUT_B)
 garra = Motor(OUTPUT_C)
+estoque = Motor(OUTPUT_D)
 
 sensorEsq = ColorSensor(INPUT_3)
 sensorDir = ColorSensor(INPUT_1)
