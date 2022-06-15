@@ -50,7 +50,7 @@ def segue_linha(preto):
     valor_dir = sensorDir.value() 
     
 
-    vmenor = 100 
+    vmenor = 40 #esses valores deixam a curv mais aberta, se a distância entre os valores for alta. O que é bom na curva do quadrado
     vmaior = -100
 
     verde_esq = False
@@ -61,14 +61,15 @@ def segue_linha(preto):
     sensorDir_valores.append(valor_dir)
     sensorEsq_valores.append(valor_esq)
 
-    #print(sensorEsq_valores[-100:], file=sys.stderr)
-    print(sensorDir_valores, file=sys.stderr)
+    print(sensorEsq_valores, file=sys.stderr)
+    #print(sensorDir_valores, file=sys.stderr)
     
 
-    if (valor_dir < verde) or (valor_esq < (verde+4)): #um ou outro ve verde
+    if (valor_dir < verde) or (valor_esq < (verde+6)): #um ou outro ve verde
         vira_verde(valor_esq,valor_dir,verde)
 
     elif (valor_esq < (preto - 5)) and (valor_dir < (preto + 5)): #ambos veem valor menor que preto
+        print("Ambos viram menor que preto", file=sys.stderr)
         ultimos_valoresEsq = sensorEsq_valores[-100:]
         ultimos_valoresDir = sensorDir_valores[-100:]
         ultimos_valoresEsq.sort()
@@ -76,11 +77,18 @@ def segue_linha(preto):
         ultimos_valoresDir.sort()
             
         if ultimos_valoresEsq[30] < branco: #se o esquerdo andou vendo muito preto -> vira pra esquerda
-            motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
+            #Sound().beep()
+            #Sound().beep()
+            #motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
+            motores.on(SpeedPercent(0),SpeedPercent(0))
             time.sleep(0.4)
             
         elif ultimos_valoresDir[30] < branco: #se o direito andou vendo muito preto -> vira pra direita (virada bruta)
-            motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
+            #Sound().beep()
+            #Sound().beep()
+            #motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
+            #time.sleep(0.4)
+            motores.on(SpeedPercent(0),SpeedPercent(0))
             time.sleep(0.4)
 
         else: # dois pretos
@@ -88,11 +96,15 @@ def segue_linha(preto):
             motores.on_for_seconds(SpeedPercent(-20),SpeedPercent(-20),1)
 
     elif (valor_esq < preto) and (valor_dir > preto): #só esquerdo ve valor menor que preto -> dobra pra esquerda
+        motores.on(SpeedPercent(10),SpeedPercent(10)) 
         motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior)) 
+        
         
 
     elif (valor_esq > preto) and (valor_dir < preto): #só direito ve valor menor que preto -> dobra pra direita
+        motores.on(SpeedPercent(10),SpeedPercent(10)) 
         motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor)) 
+        
         
 
     else: #ambos veem valores maiores que preto (dois brancos)
@@ -238,3 +250,6 @@ preto = 45
 inicio()
 
 #le 45 por segundo no branco
+
+#quadrado -> dominancia de sensor (Esq,Dir,Esq)
+#Triangulo -> dominancia de sensor (Esq)
