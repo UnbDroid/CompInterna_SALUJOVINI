@@ -11,23 +11,23 @@ import sys
 
 def vira_verde(valor_esq,valor_dir,verde):
     #motores.on_for_seconds(SpeedPercent(-20), SpeedPercent(-20), 1.2)
-    
+    global verde_esq
     valor_esq = sensorEsq.value()
     valor_dir = sensorDir.value()
 
-    if (valor_esq < verde): #esq ve verde
+    if (valor_esq < verde_esq): #esq ve verde
         Sound().beep()
         print("Verde esquerdo", file=sys.stderr)
-        motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-50),0.75)
-        motores.on_for_seconds(SpeedPercent(-10),SpeedPercent(-50),1) #vira esquerda
+        motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-50),0.3)
+        motores.on_for_seconds(SpeedPercent(-10),SpeedPercent(-50),0.8) #vira esquerda
         valor_esq = sensorEsq.value()
         segue_linha(preto)
     
     elif (valor_dir < verde): #dir ve verde
         Sound().beep()
         print("Verde esquerdo", file=sys.stderr)
-        motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-50),0.75)
-        motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-10),1) #vira direita
+        motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-50),0.4)
+        motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(-10),0.8) #vira direita
         valor_dir = sensorDir.value()
         segue_linha(preto)
         #motores.on_for_seconds(SpeedPercent(-50),SpeedPercent(30),1) #dobra pra direita
@@ -41,7 +41,7 @@ def ambient_light_intensity(self):
 
 
 def segue_linha(preto):
-    verde = 9 #12
+    #verde = 10 #12
     branco = 160 #dentro da sala
     valor_frontal = sensorFrontal.value()
 
@@ -54,12 +54,10 @@ def segue_linha(preto):
     valor_dir = sensorDir.value() 
     
 
-    vmenor = 70/2 #esses valores deixam a curv mais aberta, se a distância entre os valores for alta. O que é bom na curva do quadrado
-    vmaior = -70/2
+    vmenor = 42 #esses valores deixam a curv mais aberta, se a distância entre os valores for alta. O que é bom na curva do quadrado
+    vmaior = -30
 
-#valores: 35,-75
-    verde_esq = False
-    verde_dir = False
+#valores: 35,-75 // 42 e -30
 
     #bom valor de agressividade = 60 e -60 // 70 e -70
 
@@ -69,8 +67,8 @@ def segue_linha(preto):
     #print(sensorEsq_valores, file=sys.stderr)
     print(sensorDir_valores, file=sys.stderr)
     
-
-    if (valor_dir < verde) or (valor_esq < (verde+6)): #um ou outro ve verde
+    global verde_esq
+    if (valor_dir < verde) or (valor_esq < (verde_esq)): #um ou outro ve verde
         vira_verde(valor_esq,valor_dir,verde)
 
     elif (valor_esq < (preto - 5)) and (valor_dir < (preto + 5)): #ambos veem valor menor que preto
@@ -81,7 +79,7 @@ def segue_linha(preto):
         #print(ultimos_valoresEsq, file=sys.stderr)
         ultimos_valoresDir.sort()
 
-        if ultimos_valoresEsq[30] < branco: #se o esquerdo andou vendo muito preto -> vira pra direita
+        if len(ultimos_valoresEsq) > 100 and ultimos_valoresEsq[30] < branco: #se o esquerdo andou vendo muito preto -> vira pra direita
             #Sound().beep()
             #Sound().beep()
             #motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
@@ -89,7 +87,7 @@ def segue_linha(preto):
             motores.on_for_seconds(SpeedPercent(0), SpeedPercent(0),1)
             motores.on_for_seconds(SpeedPercent(50),SpeedPercent(-100),0.4)
                 
-        elif ultimos_valoresDir[30] < branco: #se o direito andou vendo muito preto -> vira pra esquerda (virada bruta)
+        elif len(ultimos_valoresDir) > 100 and ultimos_valoresDir[30] < branco: #se o direito andou vendo muito preto -> vira pra esquerda (virada bruta)
             #Sound().beep()
             #Sound().beep()
             #motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
@@ -220,7 +218,7 @@ def valores_sCor(sensorEsq,sensorDir):
     print(sensorEsq_valores, file=sys.stderr)
 
 def inicio():
-    calibra_sensores()
+    #calibra_sensores()
     while True:   
         valor_frontal = sensorFrontal.value()     
         sensorFrontal_valores.append(valor_frontal)
@@ -240,6 +238,9 @@ sensorFrontal = LightSensor(INPUT_2)
 sensorEsq_valores = []
 sensorDir_valores = []
 sensorFrontal_valores = []
+verde = 13
+verde_esq = verde + 6
+
 
 def feira_livro():
     while True:
@@ -255,3 +256,4 @@ inicio()
 
 #quadrado -> dominancia de sensor (Esq,Dir,Esq)
 #Triangulo -> dominancia de sensor (Esq)
+
