@@ -69,7 +69,7 @@ def segue_linha(preto):
     #print(sensorDir_valores, file=sys.stderr)
     print(sensorMeio_valores, file=sys.stderr)
     
-    global verde_esq
+    global verde_esq #enquanto o sensor lateral ver o verde e o central não, precisa reajustar. Falta um while
 
     if (valor_dir < verde) or (valor_esq < (verde_esq)): #um ou outro ve verde
         vira_verde(valor_esq,valor_dir,verde)
@@ -77,10 +77,17 @@ def segue_linha(preto):
     elif (valor_meio > branco_meio): #sensor do meio vendo branco
         print('meio não viu preto', file=sys.stderr)
         if (valor_dir < preto + 5) and (valor_esq > preto - 5):
-            motores.on(SpeedPercent(vmaior), SpeedPercent(vmenor))
+            while (valor_dir < preto + 5) and (valor_esq > preto - 5):
+                motores.on(SpeedPercent(vmaior), SpeedPercent(vmenor))
+                valor_esq = sensorEsq.value()
+                valor_dir = sensorDir.value() 
         
         elif (valor_dir > preto + 5) and (valor_esq < preto - 5):
-            motores.on(SpeedPercent(vmenor), SpeedPercent(vmaior))
+            while (valor_dir > preto + 5) and (valor_esq < preto - 5):
+                motores.on(SpeedPercent(vmenor), SpeedPercent(vmaior))
+                valor_esq = sensorEsq.value()
+                valor_dir = sensorDir.value() 
+   
 
         else: #todos veem branco # gap
             motores.on(SpeedPercent(vmaior), SpeedPercent(vmaior))
