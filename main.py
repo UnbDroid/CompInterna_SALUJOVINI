@@ -54,9 +54,9 @@ def segue_linha(preto):
     valor_dir = sensorDir.value() 
     valor_meio = sensorMeio.value()
 
-    branco_meio = 500
-    vmenor = 42 #esses valores deixam a curv mais aberta, se a distância entre os valores for alta. O que é bom na curva do quadrado
-    vmaior = -30
+    branco_meio = 600
+    vmenor = 10 #42 #esses valores deixam a curv mais aberta, se a distância entre os valores for alta. O que é bom na curva do quadrado
+    vmaior = -35
 
 #valores: 35,-75 // 42 e -30
 
@@ -69,29 +69,46 @@ def segue_linha(preto):
     #print(sensorDir_valores, file=sys.stderr)
     print(sensorMeio_valores, file=sys.stderr)
     
-    global verde_esq #enquanto o sensor lateral ver o verde e o central não, precisa reajustar. Falta um while
+    global verde_esq 
 
     if (valor_dir < verde) or (valor_esq < (verde_esq)): #um ou outro ve verde
         vira_verde(valor_esq,valor_dir,verde)
     
-    elif (valor_meio > branco_meio): #sensor do meio vendo branco
-        print('meio não viu preto', file=sys.stderr)
-        if (valor_dir < preto + 5) and (valor_esq > preto - 5):
-            while (valor_dir < preto + 5) and (valor_esq > preto - 5):
-                motores.on(SpeedPercent(vmaior), SpeedPercent(vmenor))
-                valor_esq = sensorEsq.value()
-                valor_dir = sensorDir.value() 
+    elif (valor_meio < branco_meio): #sensor do meio vendo preto
+        kp = 0.1
+        objetivo = 450
+        if valor_dir > preto and valor_esq > preto: #somente o do meio vendo preto
+            motores.on(SpeedPercent(((-kp*(objetivo-valor_meio)))-20),SpeedPercent(((kp*(objetivo-valor_meio)))-20))
         
-        elif (valor_dir > preto + 5) and (valor_esq < preto - 5):
-            while (valor_dir > preto + 5) and (valor_esq < preto - 5):
-                motores.on(SpeedPercent(vmenor), SpeedPercent(vmaior))
-                valor_esq = sensorEsq.value()
-                valor_dir = sensorDir.value() 
-   
+        elif valor_esq < preto and valor_dir > preto: # esquerda e meio vendo preto 
+             while (valor_dir > preto): #enquanto o direito não ver preto
+                    motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
+                    valor_dir = sensorDir.value()
 
-        else: #todos veem branco # gap
-            motores.on(SpeedPercent(vmaior), SpeedPercent(vmaior))
-    else: #Sensor do meio vendo preto
+        elif valor_esq > preto and valor_dir < preto: # direita e meio vendo preto
+            #Sound().beep()
+            while (valor_esq > preto): #enquanto o esquerdo não ver preto
+                    motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
+                    valor_esq = sensorDir.value()
+        
+        else: #encruzilhada / todos vendo preto
+            motores.on_for_seconds(SpeedPercent(-15),(-15), 1.5)
+    
+    else: #sensor do meio vendo branco
+        if (valor_esq < preto) and (valor_dir > preto): #esquerdo ve preto e direito ve branco
+            while (valor_meio > branco_meio): #enquanto o do meio não ver preto
+                motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
+                valor_meio = sensorMeio.value()
+
+        elif (valor_esq > preto) and (valor_dir < preto): #esquerdo ve branco e direito ve preto
+            while (valor_meio > branco_meio):  #enquanto o do meio não ver preto
+                motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
+                valor_meio = sensorMeio.value()
+        else: #todos veem branco
+            motores.on(SpeedPercent(-20),SpeedPercent(-20))
+        
+
+        '''else: #Sensor do meio vendo preto
         if (valor_esq < (preto - 5)) and (valor_dir < (preto + 5)): #todos veem valor menor que preto
             motores.on_for_seconds(SpeedPercent(0), SpeedPercent(0),1)
             motores.on_for_seconds(SpeedPercent(-20),SpeedPercent(-20),1)
@@ -103,7 +120,7 @@ def segue_linha(preto):
             motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))     
 
         else: #ambos veem valores maiores que preto (dois brancos)
-            motores.on(SpeedPercent(-25),SpeedPercent(-25))
+            motores.on(SpeedPercent(-25),SpeedPercent(-25))'''
 
 def obstaculos(preto):    
     valor_esq = sensorEsq.value()
@@ -217,12 +234,13 @@ def valores_sCor(sensorEsq,sensorDir):
     print(sensorEsq_valores, file=sys.stderr)
 
 def inicio():
-    calibra_sensores()
+    #calibra_sensores()
     while True:   
         valor_frontal = sensorFrontal.value()     
         sensorFrontal_valores.append(valor_frontal)
 
         segue_linha(preto)
+        #motores.follow_line(kp = 0.6 , ki =1 , kd =1 , speed=SpeedPercent(30), 500, True, 600)
         
         
 motores = MoveTank(OUTPUT_A,OUTPUT_B)
@@ -239,7 +257,7 @@ sensorDir_valores = []
 sensorMeio_valores = []
 sensorFrontal_valores = []
 verde = 13
-verde_esq = verde + 6
+verde_esq = verde + 6 + 2
 
 
 def feira_livro():
@@ -256,4 +274,3 @@ inicio()
 
 #quadrado -> dominancia de sensor (Esq,Dir,Esq)
 #Triangulo -> dominancia de sensor (Esq)
-
