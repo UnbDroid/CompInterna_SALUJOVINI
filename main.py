@@ -55,12 +55,11 @@ def segue_linha(preto):
 
     branco = 160 #dentro da sala
     branco_meio = 500 #600 às 18hrs // 550 às 14hrs
+    objetivo = 450 #450 às 14hrs
     vmenor = 10 #42 #esses valores deixam a curv mais aberta, se a distância entre os valores for alta. O que é bom na curva do quadrado
-    vmaior = -35
-
-#valores: 35,-75 // 42 e -30
-
+    vmaior = -35#valores: 35,-75 // 42 e -30
     #bom valor de agressividade = 60 e -60 // 70 e -70
+
     sensorMeio_valores.append(valor_meio)
     sensorDir_valores.append(valor_dir)
     sensorEsq_valores.append(valor_esq)
@@ -80,8 +79,6 @@ def segue_linha(preto):
         erros = 0
         soma_erro = 0
         #Ki pequena, bem menor que kp. kd está entre kp e ki
-
-        objetivo = 450 #450 às 14hrs
         
         if valor_dir > preto and valor_esq > preto: #somente o do meio vendo preto
             erro = (objetivo - valor_meio)
@@ -119,21 +116,6 @@ def segue_linha(preto):
                 valor_meio = sensorMeio.value()
         else: #todos veem branco
             motores.on(SpeedPercent(-20),SpeedPercent(-20))
-        
-
-        '''else: #Sensor do meio vendo preto
-        if (valor_esq < (preto - 5)) and (valor_dir < (preto + 5)): #todos veem valor menor que preto
-            motores.on_for_seconds(SpeedPercent(0), SpeedPercent(0),1)
-            motores.on_for_seconds(SpeedPercent(-20),SpeedPercent(-20),1)
-
-        elif (valor_esq < preto) and (valor_dir > preto): #esquerdo ve valor menor que preto -> dobra pra esquerda 
-            motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior)) 
-            
-        elif (valor_esq > preto) and (valor_dir < preto): #só direito ve valor menor que preto -> dobra pra direita
-            motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))     
-
-        else: #ambos veem valores maiores que preto (dois brancos)
-            motores.on(SpeedPercent(-25),SpeedPercent(-25))'''
 
 def obstaculos(preto):
     valor_esq = sensorEsq.value()
@@ -197,6 +179,10 @@ def valores_sCor(sensorEsq,sensorDir):
 
     print(sensorDir_valores, file=sys.stderr)
     print(sensorEsq_valores, file=sys.stderr)
+
+def descobre_verde():
+
+
 
 def inicio():
     #calibra_sensores()
