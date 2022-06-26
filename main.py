@@ -7,8 +7,6 @@ from ev3dev2.sound import Sound
 from ev3dev2.console import *
 import sys
 
-
-
 def vira_verde(valor_esq,valor_dir,verde):
     #motores.on_for_seconds(SpeedPercent(-20), SpeedPercent(-20), 1.2)
     global verde_esq
@@ -81,29 +79,30 @@ def segue_linha(preto):
             motores.on(SpeedPercent(((-kp*(objetivo-valor_meio)))-20),SpeedPercent(((kp*(objetivo-valor_meio)))-20))
         
         elif valor_esq < preto and valor_dir > preto: # esquerda e meio vendo preto 
-             while (valor_dir > preto): #enquanto o direito não ver preto
-                    motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
-                    valor_dir = sensorDir.value()
+            motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
+            while (valor_dir > preto): #enquanto o direito não ver preto
+                valor_dir = sensorDir.value()
 
         elif valor_esq > preto and valor_dir < preto: # direita e meio vendo preto
             #Sound().beep()
+            motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
             while (valor_esq > preto): #enquanto o esquerdo não ver preto
-                    motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
-                    valor_esq = sensorDir.value()
+                valor_esq = sensorDir.value()
         
         else: #encruzilhada / todos vendo preto
             motores.on_for_seconds(SpeedPercent(-15),(-15), 1.5)
     
     else: #sensor do meio vendo branco
         if (valor_esq < preto) and (valor_dir > preto): #esquerdo ve preto e direito ve branco
+            motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
             while (valor_meio > branco_meio): #enquanto o do meio não ver preto
-                motores.on(SpeedPercent(vmenor),SpeedPercent(vmaior))
                 valor_meio = sensorMeio.value()
 
         elif (valor_esq > preto) and (valor_dir < preto): #esquerdo ve branco e direito ve preto
+            motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
             while (valor_meio > branco_meio):  #enquanto o do meio não ver preto
-                motores.on(SpeedPercent(vmaior),SpeedPercent(vmenor))
                 valor_meio = sensorMeio.value()
+
         else: #todos veem branco
             motores.on(SpeedPercent(-20),SpeedPercent(-20))
         
@@ -258,7 +257,6 @@ sensorMeio_valores = []
 sensorFrontal_valores = []
 verde = 13
 verde_esq = verde + 6 + 2
-
 
 def feira_livro():
     while True:
